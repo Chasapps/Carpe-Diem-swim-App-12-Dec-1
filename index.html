@@ -18,30 +18,52 @@
   </div>
 
   <script>
-  // Small inline script so the splash works even if JS modules fail.
-  (async () => {
-    const ownerEl = document.getElementById('ownerName');
+// Small inline script so the splash works even if JS modules fail.
+(() => {
+  const ownerEl = document.getElementById('ownerName');
+  const bodyEl  = document.getElementById('splashBody');
 
+  const LS_KEY = 'passportOwnerName';
+  let name = null;
+
+  // 1. Try to load a previously saved name from this device.
+  try {
+    name = localStorage.getItem(LS_KEY);
+  } catch (e) {
+    // If localStorage is blocked, we just behave as if there's no saved name.
+    name = null;
+  }
+
+  // 2. If no name saved yet, ask the user once.
+  if (!name) {
+    const defaultName = 'Carpe Diem Passport';
+    const input = prompt('What name should appear on your passport?', defaultName);
+    name = (input && input.trim()) || defaultName;
+
+    // Best-effort save for next time.
     try {
-      // Fetch the name from a simple text file that you can edit
-      // without touching any HTML or JavaScript.
-      const res = await fetch('owner-name.txt');
-      const text = await res.text();
-      ownerEl.textContent = (text || '').trim() || 'Carpe Diem Passport';
+      localStorage.setItem(LS_KEY, name);
     } catch (e) {
-      ownerEl.textContent = 'Carpe Diem Passport';
+      // Ignore errors (e.g. storage disabled)
     }
+  }
 
-    // Any tap on the cover takes you into the overview map.
-    document.getElementById('splashBody').addEventListener('click', () => {
+  // 3. Show the chosen name on the passport cover.
+  if (ownerEl) {
+    ownerEl.textContent = name;
+  }
+
+  // 4. Any tap on the cover takes you into the overview map.
+  if (bodyEl) {
+    bodyEl.addEventListener('click', () => {
       try {
-        // This flag is used as a simple "gate" so users can’t deep-link
-        // into the app without first seeing the splash.
+        // Gate flag so users can’t deep-link into the app without the splash.
         sessionStorage.setItem('enteredViaSplash', '1');
       } catch (e) {}
       location.href = 'overview.html';
     });
-  })();
-  </script>
+  }
+})();
+</script>
 </body>
 </html>
