@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Carpe Diem Passport — Splash</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="splash-body" id="splashBody">
+  <!--
+    Splash screen
+    -------------
+    • Shows your gold-foil crest and the owner name from owner-name.txt
+    • A single tap moves into the Harbour Pools overview map.
+  -->
+  <div class="splash-overlay">
+    <h1 id="ownerName" class="foil-emboss owner-name">Loading…</h1>
+  </div>
+
+  <script>
+  // Small inline script so the splash works even if JS modules fail.
+  (async () => {
+    const ownerEl = document.getElementById('ownerName');
+
+    try {
+      // Fetch the name from a simple text file that you can edit
+      // without touching any HTML or JavaScript.
+      const res = await fetch('owner-name.txt');
+      const text = await res.text();
+      ownerEl.textContent = (text || '').trim() || 'Carpe Diem Passport';
+    } catch (e) {
+      ownerEl.textContent = 'Carpe Diem Passport';
+    }
+
+    // Any tap on the cover takes you into the overview map.
+    document.getElementById('splashBody').addEventListener('click', () => {
+      try {
+        // This flag is used as a simple "gate" so users can’t deep-link
+        // into the app without first seeing the splash.
+        sessionStorage.setItem('enteredViaSplash', '1');
+      } catch (e) {}
+      location.href = 'overview.html';
+    });
+  })();
+  </script>
+</body>
+</html>

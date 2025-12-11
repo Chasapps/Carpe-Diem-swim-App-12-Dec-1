@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#c0392b" stroke-width="10">
+    <circle cx="128" cy="128" r="96"/>
+    <circle cx="128" cy="128" r="86" stroke-dasharray="8 8"/>
+  </g>
+  <g>
+    <text x="128" y="110" text-anchor="middle" font-family="Georgia, serif" font-size="26" fill="#c0392b" transform="rotate(-10,128,128)">HARBOUR PASSPORT</text>
+    <text x="128" y="160" text-anchor="middle" font-family="Georgia, serif" font-size="34" fill="#c0392b" transform="rotate(-10,128,128)">SWIM</text>
+  </g>
+</svg>
