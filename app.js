@@ -224,7 +224,8 @@ function renderStamps(popId = null) {
       <div class="stamp ${popId === p.id ? 'pop' : ''}"
            style="${stamped ? 'opacity:.98' : 'opacity:.45; filter:grayscale(1)'}">
         <img src="${getStampSrc(p)}" alt="stamp">
-        <div class="label">${stamped ? (p.suburb || p.name.split(' ')[0]).toUpperCase() : 'NOT STAMPED'}</div>
+      
+        <div class="label">${stamped ? p.suburb : 'Not stamped'}</div>
       </div>
       <div class="stamp-date">${stampDate || ''}</div>
     `;
