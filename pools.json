@@ -1,77 +1,122 @@
 [
   {
+    "id": "parsley-bay",
     "name": "Parsley Bay Swimming Enclosure, Vaucluse",
+    "suburb": "Parsley Bay",
     "lat": -33.852746,
-    "lng": 151.278041
+    "lng": 151.278041,
+    "stamp": "stamps/parsley-bay.png"
   },
   {
+    "id": "nielsen-park",
     "name": "Nielsen Park \u2013 Shark Beach, Vaucluse",
+    "suburb": "Nielsen Park",
     "lat": -33.850846,
-    "lng": 151.268571
+    "lng": 151.268571,
+    "stamp": "stamps/nielsen-park.png"
   },
   {
+    "id": "watsons-bay",
     "name": "Watsons Bay Baths, Watsons Bay",
+    "suburb": "Watsons Bay",
     "lat": -33.844243,
-    "lng": 151.281703
+    "lng": 151.281703,
+    "stamp": "stamps/watsons-bay.png"
   },
   {
+    "id": "woollahra-redleaf",
     "name": "Murray Rose Pool (Redleaf), Double Bay",
+    "suburb": "Woollahra",
     "lat": -33.872072,
-    "lng": 151.247724
+    "lng": 151.247724,
+    "stamp": "stamps/woollahra-redleaf.png"
   },
   {
+    "id": "barangaroo",
     "name": "Marrinawi Cove, Barangaroo",
+    "suburb": "Barangaroo",
     "lat": -33.859,
-    "lng": 151.199
+    "lng": 151.199,
+    "stamp": "stamps/barangaroo.png"
   },
   {
+    "id": "cremorne-point",
     "name": "Maccallum Seawater Pool, Cremorne Point",
+    "suburb": "Cremorne Point",
     "lat": -33.84532,
-    "lng": 151.22808
+    "lng": 151.22808,
+    "stamp": "stamps/cremorne-point.png"
   },
   {
+    "id": "balmoral",
     "name": "Balmoral Baths, Mosman",
+    "suburb": "Balmoral",
     "lat": -33.825413,
-    "lng": 151.251602
+    "lng": 151.251602,
+    "stamp": "stamps/balmoral.png"
   },
   {
+    "id": "clifton-gardens",
     "name": "Clifton Gardens (Chowder Bay) netted enclosure, Mosman",
+    "suburb": "Clifton Gardens",
     "lat": -33.84211,
-    "lng": 151.24755
+    "lng": 151.24755,
+    "stamp": "stamps/clifton-gardens.png"
   },
   {
+    "id": "northbridge",
     "name": "Northbridge Baths, Sailors Bay",
+    "suburb": "Northbridge",
     "lat": -33.806626,
-    "lng": 151.221141
+    "lng": 151.221141,
+    "stamp": "stamps/northbridge.png"
   },
   {
+    "id": "greenwich",
     "name": "Greenwich Baths, Greenwich",
+    "suburb": "Greenwich",
     "lat": -33.84152,
-    "lng": 151.18288
+    "lng": 151.18288,
+    "stamp": "stamps/greenwich.png"
   },
   {
+    "id": "little-manly",
     "name": "Little Manly Cove tidal/netted pool, Manly",
+    "suburb": "Little Manly",
     "lat": -33.806764,
-    "lng": 151.286668
+    "lng": 151.286668,
+    "stamp": "stamps/little-manly.png"
   },
   {
+    "id": "balgowlah-forty-baskets",
     "name": "Forty Baskets Beach netted enclosure, Balgowlah",
+    "suburb": "Balgowlah",
     "lat": -33.802309,
-    "lng": 151.269516
+    "lng": 151.269516,
+    "stamp": "stamps/balgowlah-forty-baskets.png"
   },
   {
+    "id": "woolwich",
     "name": "Woolwich Baths (Lane Cove River)",
+    "suburb": "Woolwich",
     "lat": -33.8403,
-    "lng": 151.1702
+    "lng": 151.1702,
+    "stamp": "stamps/woolwich.png"
   },
   {
+    "id": "chiswick",
     "name": "Chiswick Baths (Parramatta River)",
+    "suburb": "Chiswick",
     "lat": -33.85,
-    "lng": 151.14
+    "lng": 151.14,
+    "stamp": "stamps/chiswick.png"
   },
   {
+    "id": "balmain",
     "name": "Dawn Fraser Baths, Balmain",
+    "suburb": "Balmain",
     "lat": -33.856095,
-    "lng": 151.170644
+    "lng": 151.170644,
+    "stamp": "stamps/balmain.png"
   }
 ]
