@@ -221,7 +221,7 @@ function renderStamps(popId = null) {
     card.className = 'passport';
     card.innerHTML = `
       <div class="title">${p.name}</div>
-      <div class="stamp ${poolId === p.id ? 'pop' : ''}"
+      <div class="stamp ${popId === p.id ? 'pop' : ''}"
            style="${stamped ? 'opacity:.98' : 'opacity:.45; filter:grayscale(1)'}">
         <img src="${getStampSrc(p)}" alt="stamp">
       
