@@ -1,12 +1,3 @@
-// app.js (patched to use pool.id + pool.stamp from pools.json)
-// ==========================================================
-// Changes vs your current app.js:
-// 1) visited storage key is pool.id (stable) instead of pool.name
-// 2) stamp image uses pool.stamp (mapping lives in pools.json)
-// 3) stamp chip uses data-id instead of data-name
-//
-// NOTE: storage.js does not need changes — it stores arbitrary keys.
-
 import { loadPools } from './data.js';
 import {
   readVisited,
@@ -19,311 +10,98 @@ import {
 } from './storage.js';
 
 let pools = [];
-let visited = readVisited();          // { [poolId]: { done, date } }
+let visited = readVisited();
 let selectedIndex = readSelection();
 let currentStampsPage = readStampsPage();
 let onStampsView = false;
 
-let map;
-let marker;
+const listView   = document.getElementById('listView');
+const stampsView = document.getElementById('passportView');
+const toggleBtn  = document.getElementById('toggleBtn');
+const counterEl  = document.getElementById('counter');
 
-const listView        = document.getElementById('listView');
-const stampsView      = document.getElementById('passportView');
-const toggleBtn       = document.getElementById('toggleBtn');
-const resetBtn        = document.getElementById('resetBtn');
-const countBadge      = document.getElementById('countBadge');
-const mapToggle       = document.getElementById('mapToggle');
-const prevStampsPageBtn = document.getElementById('prevPassportPage');
-const nextStampsPageBtn = document.getElementById('nextPassportPage');
+loadPools().then(data => {
+  pools = data;
+  renderList();
+  updateCounter();
+});
 
-const openNativeMapBtn = document.getElementById('openNativeMap');
-
-const btnUp        = document.getElementById('btnUp');
-const btnDown      = document.getElementById('btnDown');
-const btnPrevPool  = document.getElementById('btnPrevPool');
-const btnNextPool  = document.getElementById('btnNextPool');
-
-function updateCount() {
-  const done = countVisited(visited);
-  countBadge.textContent = `${done} / ${pools.length}`;
-}
-
-function setView(showStamps) {
-  onStampsView = showStamps;
-
-  document.body.classList.remove('full-map');
-  listView.classList.toggle('active', !showStamps);
-  stampsView.classList.toggle('active', showStamps);
-
-  toggleBtn.textContent = showStamps ? 'Back to List' : 'Stamps';
-
-  if (showStamps) renderStamps();
-
-  if (map) setTimeout(() => map.invalidateSize(), 150);
-}
-
-function openInNativeMaps() {
-  const p = pools[selectedIndex] || pools[0];
-  if (!p) return;
-
-  const lat = p.lat;
-  const lng = p.lng;
-
-  let url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-  try {
-    const ua = navigator.userAgent || '';
-    if (/iPad|iPhone|iPod/.test(ua)) url = `https://maps.apple.com/?q=${lat},${lng}`;
-  } catch (e) {}
-
-  window.open(url, '_blank');
+function getStampSrc(p) {
+  if (p.stamp) return p.stamp;
+  if (p.id) return `stamps/${p.id}.png`;
+  return 'stamps/default.png';
 }
 
 function renderList() {
-  const list = document.getElementById('poolList');
+  listView.innerHTML = '';
 
-  if (!pools.length) {
-    list.innerHTML = '<div class="pool-name">No pools loaded.</div>';
-    return;
-  }
+  pools.forEach(p => {
+    const stamped = !!visited[p.id]?.done;
 
-  list.innerHTML = '';
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="title">${p.name}</div>
+      <div class="status">${stamped ? '✓ Visited' : 'Not visited'}</div>
+    `;
 
-  const p = pools[selectedIndex];
-  const v = visited[p.id];
-  const stamped   = v && v.done;
-  const stampDate = stamped && v.date ? v.date : null;
-
-  const row = document.createElement('div');
-  row.className = 'pool-item row-selected';
-
-  row.innerHTML = `
-    <div>
-      <div class="pool-name">${p.name}</div>
-    </div>
-    <button class="stamp-chip ${stamped ? 'stamped' : ''}" data-id="${p.id}">
-      ${stamped ? (stampDate ? `Stamped • ${stampDate}` : 'Stamped') : 'Not yet'}
-    </button>
-  `;
-
-  row.addEventListener('click', (e) => {
-    if (e.target instanceof HTMLElement &&
-        e.target.classList.contains('stamp-chip')) {
-      return;
-    }
-    panToSelected();
+    card.onclick = () => toggleStamp(p.id);
+    listView.appendChild(card);
   });
-
-  row.querySelector('.stamp-chip')?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const id = e.currentTarget.getAttribute('data-id');
-    toggleStamp(id, true);
-  });
-
-  list.appendChild(row);
-  updateCount();
-}
-
-function toggleStamp(poolId, animate = false) {
-  const existing = visited[poolId];
-  const today = new Date().toISOString().split('T')[0];
-
-  if (existing && existing.done) {
-    visited[poolId] = { done: false, date: null };
-  } else {
-    visited[poolId] = { done: true, date: today };
-  }
-
-  writeVisited(visited);
-  renderList();
-  renderStamps(animate ? poolId : null);
-}
-
-function setStampDate(poolId, date) {
-  if (!date) return;
-  const trimmed = date.trim();
-  if (!trimmed) return;
-
-  visited[poolId] = { done: true, date: trimmed };
-
-  writeVisited(visited);
-  renderList();
-  renderStamps(poolId);
-}
-
-function selectIndex(idx) {
-  if (!pools.length) return;
-
-  selectedIndex = (idx + pools.length) % pools.length;
-  writeSelection(selectedIndex);
-
-  renderList();
-  panToSelected();
-}
-
-function moveSelection(step) {
-  selectIndex(selectedIndex + step);
-}
-
-function setupMap() {
-  if (!pools.length) return;
-
-  map = L.map('map').setView([pools[0].lat, pools[0].lng], 14);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap'
-  }).addTo(map);
-
-  marker = L.marker([pools[0].lat, pools[0].lng]).addTo(map);
-}
-
-function panToSelected() {
-  if (!map || !marker || !pools.length) return;
-
-  const p = pools[selectedIndex];
-  marker.setLatLng([p.lat, p.lng]).bindPopup(p.name);
-  map.setView([p.lat, p.lng], 15, { animate: true });
-}
-
-function changeStampsPage(delta) {
-  currentStampsPage += delta;
-  renderStamps();
-}
-
-function getStampSrc(p) {
-  return p.stamp || 'stamps/default.png';
 }
 
 function renderStamps(popId = null) {
-  const grid = document.getElementById('passportGrid');
-  if (!grid) return;
+  stampsView.innerHTML = '';
 
-  const pageLabel = document.getElementById('passportPageLabel');
-  const stampsPerPage = 3;
-  const totalPages = Math.max(1, Math.ceil(pools.length / stampsPerPage));
+  const perPage = 6;
+  const start = currentStampsPage * perPage;
+  const end = start + perPage;
 
-  if (currentStampsPage < 0) currentStampsPage = 0;
-  if (currentStampsPage > totalPages - 1) currentStampsPage = totalPages - 1;
-
-  writeStampsPage(currentStampsPage);
-
-  const start = currentStampsPage * stampsPerPage;
-  const pagePools = pools.slice(start, start + stampsPerPage);
-
-  grid.innerHTML = '';
-
-  pagePools.forEach(p => {
+  pools.slice(start, end).forEach(p => {
     const v = visited[p.id];
-    const stamped   = v && v.done;
-    const stampDate = stamped && v.date ? v.date : null;
+    const stamped = !!v?.done;
+    const stampDate = stamped ? (v.date || '') : '';
+    const label = stamped ? (p.suburb || 'Stamped') : 'Not stamped';
 
     const card = document.createElement('div');
-    card.className = 'passport';
+    card.className = 'stamp-card';
     card.innerHTML = `
       <div class="title">${p.name}</div>
       <div class="stamp ${popId === p.id ? 'pop' : ''}"
            style="${stamped ? 'opacity:.98' : 'opacity:.45; filter:grayscale(1)'}">
         <img src="${getStampSrc(p)}" alt="stamp">
-      
-        <div class="label">${stamped ? p.suburb : 'Not stamped'}</div>
+        <div class="label">${label}</div>
       </div>
-      <div class="stamp-date">${stampDate || ''}</div>
+      <div class="stamp-date">${stampDate}</div>
     `;
 
-    const dateEl = card.querySelector('.stamp-date');
-    if (dateEl) {
-      dateEl.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (!stamped) return;
-
-        const current = stampDate || '';
-        const next = prompt('Edit visit date (YYYY-MM-DD):', current);
-        if (!next) return;
-
-        const trimmed = next.trim();
-        if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(trimmed)) {
-          alert('Please use YYYY-MM-DD format (e.g. 2025-12-05).');
-          return;
-        }
-        setStampDate(p.id, trimmed);
-      });
-    }
-
-    grid.appendChild(card);
+    stampsView.appendChild(card);
   });
-
-  if (pageLabel) {
-    pageLabel.textContent = `Page ${currentStampsPage + 1} of ${totalPages}`;
-  }
-
-  if (prevStampsPageBtn) prevStampsPageBtn.disabled = (currentStampsPage === 0);
-  if (nextStampsPageBtn) nextStampsPageBtn.disabled = (currentStampsPage === totalPages - 1);
 }
 
-toggleBtn?.addEventListener('click', () => setView(!onStampsView));
+function toggleStamp(poolId) {
+  const today = new Date().toISOString().slice(0, 10);
 
-resetBtn?.addEventListener('click', () => {
-  if (!confirm('Clear all stamps?')) return;
-  visited = {};
+  if (visited[poolId]?.done) {
+    delete visited[poolId];
+  } else {
+    visited[poolId] = { done: true, date: today };
+  }
+
   writeVisited(visited);
-  renderList();
-  renderStamps();
-  updateCount();
-});
+  updateCounter();
 
-mapToggle?.addEventListener('click', () => {
-  const fm = document.body.classList.toggle('full-map');
-  mapToggle.textContent = fm ? '📋 Back to Split' : '🗺️ Full Map';
-  mapToggle.setAttribute('aria-pressed', fm ? 'true' : 'false');
-  if (map) {
-    setTimeout(() => { map.invalidateSize(); panToSelected(); }, 150);
-  }
-});
-
-openNativeMapBtn?.addEventListener('click', (e) => {
-  e.preventDefault();
-  openInNativeMaps();
-});
-
-btnUp?.addEventListener('click', () => moveSelection(1));
-btnDown?.addEventListener('click', () => moveSelection(-1));
-btnPrevPool?.addEventListener('click', () => moveSelection(-1));
-btnNextPool?.addEventListener('click', () => moveSelection(1));
-
-prevStampsPageBtn?.addEventListener('click', () => changeStampsPage(-1));
-nextStampsPageBtn?.addEventListener('click', () => changeStampsPage(1));
-
-async function init() {
-  try {
-    pools = await loadPools();
-  } catch (err) {
-    console.error(err);
-    const list = document.getElementById('poolList');
-    if (list) list.textContent = 'Error loading pools list.';
-    return;
-  }
-
-  if (!pools.length) {
-    const list = document.getElementById('poolList');
-    if (list) list.textContent = 'No pools configured.';
-    return;
-  }
-
-  if (selectedIndex < 0 || selectedIndex >= pools.length) selectedIndex = 0;
-
-  setupMap();
-  selectIndex(selectedIndex);
-  setView(false);
-  updateCount();
-
-  setTimeout(() => {
-    if (map) {
-      map.invalidateSize();
-      panToSelected();
-    }
-  }, 150);
+  onStampsView ? renderStamps(poolId) : renderList();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  init().catch(err => console.error('Error during app init', err));
-});
+function updateCounter() {
+  if (!counterEl) return;
+  counterEl.textContent = `${countVisited(visited)} / ${pools.length}`;
+}
+
+toggleBtn.onclick = () => {
+  onStampsView = !onStampsView;
+  listView.style.display   = onStampsView ? 'none' : 'block';
+  stampsView.style.display = onStampsView ? 'grid' : 'none';
+  onStampsView ? renderStamps() : renderList();
+};
