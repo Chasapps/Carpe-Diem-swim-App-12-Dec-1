@@ -90,7 +90,7 @@ function renderList() {
 
   const p = pools[selectedIndex];
   const v = visited[p.id];
-  const stamped   = v && v.done;
+  const stamped   = v && v.done === true;
   const stampDate = stamped && v.date ? v.date : null;
 
   const row = document.createElement('div');
@@ -127,12 +127,12 @@ function toggleStamp(poolId, animate = false) {
   const existing = visited[poolId];
   const today = new Date().toISOString().split('T')[0];
 
-  if (existing && existing.done) {
-    visited[poolId] = { done: false, date: null };
+  if (existing && existing.done === true) {
+    // Unstamp: remove the record entirely (keeps storage clean)
+    delete visited[poolId];
   } else {
     visited[poolId] = { done: true, date: today };
   }
-
   writeVisited(visited);
   renderList();
   renderStamps(animate ? poolId : null);
@@ -191,7 +191,7 @@ function changeStampsPage(delta) {
 }
 
 function getStampSrc(p) {
-  return p.stamp || 'stamps/default.png';
+  return p.stamp || (p.id ? `stamps/${p.id}.png` : null) || 'stamps/default.png';
 }
 
 function renderStamps(popId = null) {
@@ -214,7 +214,7 @@ function renderStamps(popId = null) {
 
   pagePools.forEach(p => {
     const v = visited[p.id];
-    const stamped   = v && v.done;
+    const stamped   = v && v.done === true;
     const stampDate = stamped && v.date ? v.date : null;
 
     const card = document.createElement('div');
