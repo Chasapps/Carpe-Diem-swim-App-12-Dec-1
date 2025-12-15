@@ -73,7 +73,7 @@ async function initOverviewMap() {
   const bounds = [];
 
   pools.forEach(pool => {
-    const info = visitedMap[pool.name];
+    const info = visitedMap[pool.id];
     const isVisited = !!(info && info.done);
 
     const icon = createOverviewIcon(isVisited);

@@ -1,22 +1,11 @@
 // data.js
 // =======
-// Small module whose only job is to load the pools list from pools.json.
-// Keeping data-loading in its own file makes it easy to reuse on multiple pages.
+// Loads the pools list from pools.json.
+//
+// IMPORTANT:
+// We keep *all* useful fields (id, name, suburb, stamp, etc.) so every page
+// can key storage by a stable pool.id and render the right stamp artwork.
 
-/**
- * Shape of a pool:
- * {
- *   name: string,
- *   lat: number,
- *   lng: number
- * }
- */
-
-/**
- * Load the array of pools from pools.json.
- * - Returns a Promise that resolves to an array of pools.
- * - Throws an Error if the file cannot be loaded.
- */
 export async function loadPools() {
   const response = await fetch('pools.json');
 
@@ -27,9 +16,14 @@ export async function loadPools() {
   const raw = await response.json();
 
   // Be defensive: coerce lat/lng into numbers so Leaflet is happy.
-  return raw.map(p => ({
+  return (raw || []).map(p => ({
+    id: p.id,
     name: p.name,
+    suburb: p.suburb,
+    location: p.location,
+    area: p.area,
     lat: Number(p.lat),
-    lng: Number(p.lng)
+    lng: Number(p.lng),
+    stamp: p.stamp
   }));
 }

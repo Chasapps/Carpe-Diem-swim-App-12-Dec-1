@@ -199,7 +199,9 @@ function renderStamps(popId = null) {
   if (!grid) return;
 
   const pageLabel = document.getElementById('passportPageLabel');
-  const stampsPerPage = 3;
+
+  // 15 pools => 4 pages when stampsPerPage = 4 (matches the UI copy in app.html).
+  const stampsPerPage = 4;
   const totalPages = Math.max(1, Math.ceil(pools.length / stampsPerPage));
 
   if (currentStampsPage < 0) currentStampsPage = 0;
@@ -212,20 +214,31 @@ function renderStamps(popId = null) {
 
   grid.innerHTML = '';
 
+  // IMPORTANT BEHAVIOUR:
+  // - If a pool is NOT visited, we render an intentionally BLANK slot
+  //   (no name, no stamp art, no "Not stamped" text).
+  // - Visited pools show the stamp + optional date.
   pagePools.forEach(p => {
     const v = visited[p.id];
-    const stamped   = v && v.done === true;
+    const stamped = !!(v && v.done === true);
     const stampDate = stamped && v.date ? v.date : null;
 
     const card = document.createElement('div');
-    card.className = 'passport';
+    card.className = stamped ? 'passport' : 'passport passport-empty';
+
+    if (!stamped) {
+      card.innerHTML = `
+        <div class="passport-empty-slot" aria-label="Empty stamp slot"></div>
+      `;
+      grid.appendChild(card);
+      return;
+    }
+
     card.innerHTML = `
       <div class="title">${p.name}</div>
-      <div class="stamp ${popId === p.id ? 'pop' : ''}"
-           style="${stamped ? 'opacity:.98' : 'opacity:.45; filter:grayscale(1)'}">
+      <div class="stamp ${popId === p.id ? 'pop' : ''}" style="opacity:.98">
         <img src="${getStampSrc(p)}" alt="stamp">
-      
-        <div class="label">${stamped ? (p.suburb || p.location || p.area || 'Stamped') : 'Not stamped'}</div>
+        <div class="label">${p.suburb || p.location || p.area || 'Stamped'}</div>
       </div>
       <div class="stamp-date">${stampDate || ''}</div>
     `;
@@ -234,14 +247,13 @@ function renderStamps(popId = null) {
     if (dateEl) {
       dateEl.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (!stamped) return;
 
         const current = stampDate || '';
         const next = prompt('Edit visit date (YYYY-MM-DD):', current);
         if (!next) return;
 
         const trimmed = next.trim();
-        if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(trimmed)) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
           alert('Please use YYYY-MM-DD format (e.g. 2025-12-05).');
           return;
         }
