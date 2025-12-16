@@ -29,7 +29,7 @@
     "suburb": "Woollahra",
     "lat": -33.872072,
     "lng": 151.247724,
-    "stamp": "stamps/woollahra-redleaf.png"
+    "stamp": "stamps/woollahra.png"
   },
   {
     "id": "barangaroo",
@@ -85,7 +85,7 @@
     "suburb": "Little Manly",
     "lat": -33.806764,
     "lng": 151.286668,
-    "stamp": "stamps/little-manly.png"
+    "stamp": "stamps/little-manly-cove.png"
   },
   {
     "id": "balgowlah-forty-baskets",
@@ -93,7 +93,7 @@
     "suburb": "Balgowlah",
     "lat": -33.802309,
     "lng": 151.269516,
-    "stamp": "stamps/balgowlah-forty-baskets.png"
+    "stamp": "stamps/balgowlah.png"
   },
   {
     "id": "woolwich",
