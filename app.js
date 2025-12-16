@@ -191,7 +191,8 @@ function changeStampsPage(delta) {
 }
 
 function getStampSrc(p) {
-  return p.stamp || (p.id ? `stamps/${p.id}.png` : null) || 'stamps/default.png';
+  return `stamps/${p.id}.png`;
+}.png` : null) || 'stamps/default.png';
 }
 
 function renderStamps(popId = null) {
@@ -223,12 +224,7 @@ function renderStamps(popId = null) {
   const pagePools = visitedPools.slice(start, start + stampsPerPage);
 
   grid.innerHTML = '';
-
-  // IMPORTANT BEHAVIOUR:
-  // - If a pool is NOT visited, we render an intentionally BLANK slot
-  //   (no name, no stamp art, no "Not stamped" text).
-  // - Visited pools show the stamp + optional date.
-  pagePools.forEach(p => {
+pagePools.forEach(p => {
     const v = visited[p.id];
     const stamped = !!(v && v.done === true);
     const stampDate = stamped && v.date ? v.date : null;
