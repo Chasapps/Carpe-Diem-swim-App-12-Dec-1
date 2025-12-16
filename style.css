@@ -298,11 +298,7 @@ main {
   border-color: var(--gold-deep);
 }
 
-/* Make passport stamps larger */
-.passport .stamp img {
-  width: 160px;      /* was ~80px */
-  height: auto;
-}
+
 
 .row-selected {
   background: rgba(14,36,54,.06);
@@ -458,7 +454,7 @@ body.full-map #map {
 
 /* Make passport stamps larger */
 .passport .stamp img {
-  width: 160px;      /* was ~80px */
+  width: 120px;      /* was ~80px */
   height: auto;
 }
 
