@@ -859,3 +859,11 @@ body.full-map #map {
   min-height: 90px;
   border-radius: 14px;
 }
+
+
+/* Clear primary action for marking a pool as visited */
+.stamp-chip.cta {
+  background: var(--bg-navy);
+  color: var(--accent-soft);
+  font-weight: 800;
+}

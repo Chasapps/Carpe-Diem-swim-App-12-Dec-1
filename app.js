@@ -100,8 +100,8 @@ function renderList() {
     <div>
       <div class="pool-name">${p.name}</div>
     </div>
-    <button class="stamp-chip ${stamped ? 'stamped' : ''}" data-id="${p.id}">
-      ${stamped ? (stampDate ? `Stamped • ${stampDate}` : 'Stamped') : 'Not yet'}
+    <button class="stamp-chip ${stamped ? 'stamped' : 'cta'}" data-id="${p.id}">
+      ${stamped ? (stampDate ? `✓ Visited • ${stampDate}` : '✓ Visited (tap to undo)') : '✅ Mark as visited'}
     </button>
   `;
 
