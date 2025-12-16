@@ -125,7 +125,7 @@ function renderList() {
 
 function toggleStamp(poolId, animate = false) {
   const existing = visited[poolId];
-  const today = new Intl.DateTimeFormat('en-AU').format(new Date());
+  const today = new Date().toISOString().split('T')[0];
 
   if (existing && existing.done === true) {
     // Unstamp: remove the record entirely (keeps storage clean)
@@ -191,8 +191,7 @@ function changeStampsPage(delta) {
 }
 
 function getStampSrc(p) {
-  return `stamps/${p.id}.png`;
-}.png` : null) || 'stamps/default.png';
+  return p.stamp || (p.id ? `stamps/${p.id}.png` : null) || 'stamps/default.png';
 }
 
 function renderStamps(popId = null) {
@@ -224,7 +223,12 @@ function renderStamps(popId = null) {
   const pagePools = visitedPools.slice(start, start + stampsPerPage);
 
   grid.innerHTML = '';
-pagePools.forEach(p => {
+
+  // IMPORTANT BEHAVIOUR:
+  // - If a pool is NOT visited, we render an intentionally BLANK slot
+  //   (no name, no stamp art, no "Not stamped" text).
+  // - Visited pools show the stamp + optional date.
+  pagePools.forEach(p => {
     const v = visited[p.id];
     const stamped = !!(v && v.done === true);
     const stampDate = stamped && v.date ? v.date : null;
@@ -248,12 +252,12 @@ pagePools.forEach(p => {
         e.stopPropagation();
 
         const current = stampDate || '';
-        const next = prompt('Edit visit date (DD/MM/YYYY):', current);
+        const next = prompt('Edit visit date (YYYY-MM-DD):', current);
         if (!next) return;
 
         const trimmed = next.trim();
-        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(trimmed)) {
-          alert('Please use DD/MM/YYYY format (e.g. 16/12/2025).');
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+          alert('Please use YYYY-MM-DD format (e.g. 2025-12-05).');
           return;
         }
         setStampDate(p.id, trimmed);
