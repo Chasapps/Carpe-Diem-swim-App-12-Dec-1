@@ -125,7 +125,7 @@ function renderList() {
 
 function toggleStamp(poolId, animate = false) {
   const existing = visited[poolId];
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Intl.DateTimeFormat('en-AU').format(new Date());
 
   if (existing && existing.done === true) {
     // Unstamp: remove the record entirely (keeps storage clean)
@@ -252,12 +252,12 @@ function renderStamps(popId = null) {
         e.stopPropagation();
 
         const current = stampDate || '';
-        const next = prompt('Edit visit date (YYYY-MM-DD):', current);
+        const next = prompt('Edit visit date (DD/MM/YYYY):', current);
         if (!next) return;
 
         const trimmed = next.trim();
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-          alert('Please use YYYY-MM-DD format (e.g. 2025-12-05).');
+        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(trimmed)) {
+          alert('Please use DD/MM/YYYY format (e.g. 16/12/2025).');
           return;
         }
         setStampDate(p.id, trimmed);
