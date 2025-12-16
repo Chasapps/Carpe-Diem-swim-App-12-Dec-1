@@ -202,7 +202,17 @@ function renderStamps(popId = null) {
 
   // 15 pools => 4 pages when stampsPerPage = 4 (matches the UI copy in app.html).
   const stampsPerPage = 3;
-  const totalPages = Math.max(1, Math.ceil(pools.length / stampsPerPage));
+
+  // Build list of visited pools in visit order
+  const visitedPools = pools
+    .filter(p => visited[p.id]?.done === true)
+    .sort((a, b) => {
+      const da = visited[a.id]?.date || '';
+      const db = visited[b.id]?.date || '';
+      return da.localeCompare(db);
+    });
+
+  const totalPages = Math.max(1, Math.ceil(visitedPools.length / stampsPerPage));
 
   if (currentStampsPage < 0) currentStampsPage = 0;
   if (currentStampsPage > totalPages - 1) currentStampsPage = totalPages - 1;
@@ -210,7 +220,7 @@ function renderStamps(popId = null) {
   writeStampsPage(currentStampsPage);
 
   const start = currentStampsPage * stampsPerPage;
-  const pagePools = pools.slice(start, start + stampsPerPage);
+  const pagePools = visitedPools.slice(start, start + stampsPerPage);
 
   grid.innerHTML = '';
 
@@ -226,13 +236,6 @@ function renderStamps(popId = null) {
     const card = document.createElement('div');
     card.className = stamped ? 'passport' : 'passport passport-empty';
 
-    if (!stamped) {
-      card.innerHTML = `
-        <div class="passport-empty-slot" aria-label="Empty stamp slot"></div>
-      `;
-      grid.appendChild(card);
-      return;
-    }
 
     card.innerHTML = `
       <div class="title">${p.name}</div>
