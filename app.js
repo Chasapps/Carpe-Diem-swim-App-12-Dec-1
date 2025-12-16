@@ -201,7 +201,7 @@ function renderStamps(popId = null) {
   const pageLabel = document.getElementById('passportPageLabel');
 
   // 15 pools => 4 pages when stampsPerPage = 4 (matches the UI copy in app.html).
-  const stampsPerPage = 4;
+  const stampsPerPage = 3;
   const totalPages = Math.max(1, Math.ceil(pools.length / stampsPerPage));
 
   if (currentStampsPage < 0) currentStampsPage = 0;
