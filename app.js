@@ -43,6 +43,16 @@ const btnDown      = document.getElementById('btnDown');
 const btnPrevPool  = document.getElementById('btnPrevPool');
 const btnNextPool  = document.getElementById('btnNextPool');
 
+function formatDateAU(d) {
+  if (!d) return '';
+  // convert ISO YYYY-MM-DD to DD/MM/YYYY if needed
+  if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+    const [y,m,day] = d.split('-');
+    return `${day}/${m}/${y}`;
+  }
+  return d;
+}
+
 function updateCount() {
   const done = countVisited(visited);
   countBadge.textContent = `${done} / ${pools.length}`;
@@ -101,7 +111,7 @@ function renderList() {
       <div class="pool-name">${p.name}</div>
     </div>
     <button class="stamp-chip ${stamped ? 'stamped' : 'cta'}" data-id="${p.id}">
-      ${stamped ? (stampDate ? `✓ Visited • ${stampDate}` : '✓ Visited (tap to undo)') : '✅ Mark as visited'}
+      ${stamped ? (stampDate ? `✓ Visited • ${formatDateAU(stampDate)}` : '✓ Visited (tap to undo)') : '✅ Mark as visited'}
     </button>
   `;
 
@@ -125,7 +135,7 @@ function renderList() {
 
 function toggleStamp(poolId, animate = false) {
   const existing = visited[poolId];
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Intl.DateTimeFormat('en-AU').format(new Date());
 
   if (existing && existing.done === true) {
     // Unstamp: remove the record entirely (keeps storage clean)
@@ -243,7 +253,7 @@ function renderStamps(popId = null) {
         <img src="${getStampSrc(p)}" alt="stamp">
         <div class="label">${p.suburb || p.location || p.area || 'Stamped'}</div>
       </div>
-      <div class="stamp-date">${stampDate || ''}</div>
+      <div class="stamp-date">${formatDateAU(stampDate) || ''}</div>
     `;
 
     const dateEl = card.querySelector('.stamp-date');
@@ -252,12 +262,12 @@ function renderStamps(popId = null) {
         e.stopPropagation();
 
         const current = stampDate || '';
-        const next = prompt('Edit visit date (YYYY-MM-DD):', current);
+        const next = prompt('Edit visit date (DD/MM/YYYY):', formatDateAU(current));
         if (!next) return;
 
         const trimmed = next.trim();
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-          alert('Please use YYYY-MM-DD format (e.g. 2025-12-05).');
+        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(trimmed)) {
+          alert('Please use DD/MM/YYYY format (e.g. 16/12/2025).');
           return;
         }
         setStampDate(p.id, trimmed);
